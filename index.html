@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en" class="h-100">
+<head>
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- JavaScript -->
+    <!-- Original -->
+    <script type="text/javascript" src="javascript/copyright.js"></script>
+    <script type="text/javascript" src="javascript/audioctl.js" defer></script>
+    <script type="text/javascript" src="javascript/castctl.js" defer></script>
+
+    <!-- CSS -->
+    <!-- Library -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <!-- Original -->
+    <link href="css/styles.css" rel="stylesheet">
+
+    <title>Chrome Audio LoopBack</title>
+
+    <style>
+        .bd-placeholder-img {
+          font-size: 1.125rem;
+          text-anchor: middle;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+  
+        @media (min-width: 768px) {
+          .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+          }
+        }
+      </style>
+</head>
+<body class="d-flex h-100 text-center text-white bg-dark">
+
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+        <header class="mb-auto">
+          <div>
+            <h3 class="float-md-left mb-0">Chrome Audio Loop Back</h3>
+            <nav class="nav nav-masthead justify-content-center float-md-right">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+              <a class="nav-link" href="https://github.com/HayatoDoi/ChromeAudioLoopBack/issues">Features</a>
+              <a class="nav-link" href="https://exploit.moe/contact.html">Contact</a>
+            </nav>
+          </div>
+        </header>
+      
+        <main class="px-3">
+          <h1>What's this.</h1>
+          <p class="lead">This is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
+          <p class="lead">
+            <button type="button" class="btn btn-lg btn-top font-weight-bold border-white bg-white" data-toggle="modal" data-target="#modal_step_1">
+                Start now
+            </button>
+          </p>
+        </main>
+
+        <footer class="mt-auto text-white-50">
+            <p><script>PrintCopyright();</script></p>
+        </footer>
+    </div>
+    <!-- Step.1 Choose audio. -->
+      <div class="modal" tabindex="-1" data-backdrop="static" id="modal_step_1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Stop.1 Choose audio.</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <fieldset>
+                  <div class="mb-3">
+                    <select id="choose-audio" class="form-select">
+                        <option value="default-audio"> -------------- </option>
+                        <option value="desktop-audio"> Desktop audio </option>
+                        <option value="input-audio"> Input audio </option>
+                    </select>
+                  </div>
+                </fieldset>
+              </form>
+              <div class="embed-responsive embed-responsive-16by9">
+                <video id="choose-audio-preview" class="embed-responsive-item" autoplay playsinline></video>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_step_2">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Step.2 Cast audio. -->
+    <div class="modal" tabindex="-1" data-backdrop="static" id="modal_step_2">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Stop.2 Cast audio.</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <button id="cast-start" type="button" class="btn btn-primary">Cast!</button>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- <p>ソースの選択</p>
+    <button id="select_source">desktop audio</button>
+
+    <p>内容</p>-->
+    <video id="aaaaaa" style="display:none;" autoplay playsinline></video>
+
+    <!-- Cast -->
+    <google-cast-launcher id="castbutton"></google-cast-launcher>
+    <style type="text/css">
+        google-cast-launcher {
+            display:none;
+        }
+    </style>
+    <script type="text/javascript">
+        window['__onGCastApiAvailable'] = (isAvailable) => {
+            if (isAvailable) {
+                initCastAPI();
+            }
+        };
+    </script>
+    <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+    <!-- Bootstrap5 -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+
+</body>
+</html>
