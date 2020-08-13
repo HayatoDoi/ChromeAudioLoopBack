@@ -31,9 +31,13 @@ chooseAudio.onchange = async () => {
             await getDesktopAudio();
             // document.getElementById("choose-audio-preview").srcObject = DesktopAudio;
             document.getElementById("aaaaaa").srcObject = DesktopAudio;
+            // document.getElementById("aaaaaa").muted = true;
             break;
         case 'input-audio':
             clearDesktopAudio();
+            await getInputAudio();
+            document.getElementById("aaaaaa").srcObject = InputAudio;
+            // document.getElementById("aaaaaa").muted = true;
             //to be continue
             break;
         default:
@@ -44,12 +48,22 @@ chooseAudio.onchange = async () => {
 }
 
 /*-----------------------------------------------------------------------------
- * AudioControl.
+ * Stop.3 Start cast.
+ *---------------------------------------------------------------------------*/
+const startCast = document.getElementById("start");
+startCast.onclick = () => {
+    console.log("start");
+    console.log(document.getElementById("aaaaaa").muted );
+    document.getElementById("aaaaaa").muted = false;
+}
+
+/*-----------------------------------------------------------------------------
+ * Audio Control.
  *---------------------------------------------------------------------------*/
 async function getDesktopAudio() {
     clearDesktopAudio();
     try {
-        let mediaStream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:true});
+        let mediaStream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:{echoCancellation:false}});
         DesktopAudio = mediaStream;
     } catch (e) {
         console.error('Unable to acquire screen capture: ' + e);
@@ -60,7 +74,7 @@ async function getDesktopAudio() {
 function clearDesktopAudio() {
     console.log(DesktopAudio);
     if (DesktopAudio !== null) {
-        DesktopAudio.removeTrack();
+        DesktopAudio.getTracks().forEach(track => track.stop());
         DesktopAudio = null;
     }
     return;
@@ -68,11 +82,18 @@ function clearDesktopAudio() {
 
 async function getInputAudio() {
     clearInputAudio();
+    try {
+        let inputAudioStream = await navigator.mediaDevices.getUserMedia({video:false, audio: true});
+        InputAudio = inputAudioStream;
+    } catch (e) {
+        console.error('Unable to acquire audio capture: ' + e);
+        return null;
+    }
 }
 
 function clearInputAudio() {
     if (InputAudio !== null) {
-        // DesktopAudio.removeTrack();
+        InputAudio.getTracks().forEach(track => track.stop());
         InputAudio = null;
     }
     return;
