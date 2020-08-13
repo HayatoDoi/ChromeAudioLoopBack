@@ -2,99 +2,145 @@
 /*-----------------------------------------------------------------------------
  * Define.
  *---------------------------------------------------------------------------*/
-let DesktopAudio = null;
-let InputAudio = null;
+const MAX_STEP = 3;
 
-// const localButton = document.getElementById("select_source");
-// localButton.onclick = async function SourceSelect() {
-//     try {
-//         let mediaStream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:true});
-//         const localVideo = document.querySelector("video");
-//         if (localVideo.srcObject !== null) {
-//             localVideo.srcObject.removeTrack();
-//         }
-//         localVideo.srcObject = mediaStream;
-//     } catch (e) {
-//         console.log('Unable to acquire screen capture: ' + e);
-//     }
-// }
+/*-----------------------------------------------------------------------------
+ * Event listener.
+ *---------------------------------------------------------------------------*/
+document.getElementById("video").addEventListener("loadedmetadata", () => {
+    document.getElementById("video").muted = true;
+});
+
+/*-----------------------------------------------------------------------------
+ * Global.
+ *---------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------------
+ * Stop.ALL
+ *---------------------------------------------------------------------------*/
+/* Generate array of model step. */
+let modalStep = [...Array(MAX_STEP).keys()].map(index =>
+    new bootstrap.Modal(document.getElementById(`modal-step-${index+1}`, {keyboard: false}))
+);
+
+/* Register event. */
+modalStep.forEach((_, index) => {
+    /* Click next button. */
+    if (index+1 < MAX_STEP) {
+        document.getElementById(`modal-step-${index+1}-next`).onclick = () => {
+            modalStep[index].hide();
+            modalStep[index+1].show();
+        };
+    }
+    /* Click back button. */
+    if (index > 0) {
+        document.getElementById(`modal-step-${index+1}-back`).onclick = () => {
+            modalStep[index].hide();
+            modalStep[index-1].show();
+        };
+    }
+    /* Click close button. */
+    document.getElementById(`modal-step-${index+1}-close`).onclick = () => {
+        modalStep[index].hide();
+        clearAudio();
+        clearPreview(document.getElementById("modal-step-1-choose-audio"));
+        document.getElementById("modal-step-1-choose-audio").options[0].selected = true;
+    };
+});
 
 /*-----------------------------------------------------------------------------
  * Stop.1 Choose audio.
  *---------------------------------------------------------------------------*/
-const chooseAudio = document.getElementById("choose-audio");
-chooseAudio.onchange = async () => {
-    console.log(chooseAudio.value);
-    switch (chooseAudio.value) {
-        case 'desktop-audio':
-            clearInputAudio();
-            await getDesktopAudio();
-            // document.getElementById("choose-audio-preview").srcObject = DesktopAudio;
-            document.getElementById("aaaaaa").srcObject = DesktopAudio;
-            // document.getElementById("aaaaaa").muted = true;
-            break;
-        case 'input-audio':
-            clearDesktopAudio();
-            await getInputAudio();
-            document.getElementById("aaaaaa").srcObject = InputAudio;
-            // document.getElementById("aaaaaa").muted = true;
-            //to be continue
-            break;
-        default:
-            clearDesktopAudio();
-            clearInputAudio();
-            break;
+{
+    const index = 0;
+    document.getElementById("btn-top").onclick = () => {
+        modalStep[index].show();
     }
+    /* Select audio. */
+    const chooseAudio = document.getElementById("modal-step-1-choose-audio");
+    chooseAudio.onchange = async () => {
+        let callback = () => {};
+        switch (chooseAudio.value) {
+            case 'desktop-audio':
+                callback = () => {return navigator.mediaDevices.getDisplayMedia({video:true, audio:{echoCancellation:false}})};
+                break;
+            case 'input-audio':
+                callback = () => {return navigator.mediaDevices.getUserMedia({video:false, audio: true})};
+                break;
+            default:
+                clearAudio();
+                clearPreview(document.getElementById("modal-step-1-choose-audio"));
+                return;
+        }
+        const audioStream = await getAudio(callback);
+        document.getElementById("video").srcObject = audioStream;
+        /* Make preview. */
+        makePreview(document.getElementById("choose-audio-preview"), audioStream);
+    }
+
+    /* Click cancel button. */
+    document.getElementById("modal-step-1-cancel").onclick = () => {
+        modalStep[index].hide();
+        clearAudio();
+        clearPreview(document.getElementById("modal-step-1-choose-audio"));
+        document.getElementById("modal-step-1-choose-audio").options[0].selected = true;
+    };
 }
 
 /*-----------------------------------------------------------------------------
- * Stop.3 Start cast.
+ * Stop.2 Cast audio.
  *---------------------------------------------------------------------------*/
-const startCast = document.getElementById("start");
-startCast.onclick = () => {
-    console.log("start");
-    console.log(document.getElementById("aaaaaa").muted );
-    document.getElementById("aaaaaa").muted = false;
+
+/*-----------------------------------------------------------------------------
+ * Stop.3 Casting...
+ *---------------------------------------------------------------------------*/
+/* Click go button. */
+document.getElementById("modal-step-3-go").onclick = () => {
+    if (document.getElementById("video").muted === true) {
+        document.getElementById("video").muted = false;
+    }
+}
+
+/* Click stop button. */
+document.getElementById("modal-step-3-stop").onclick = () => {
+    if (document.getElementById("video").muted === false) {
+        document.getElementById("video").muted = true;
+    }
+}
+/*-----------------------------------------------------------------------------
+ * Previw window.
+ *---------------------------------------------------------------------------*/
+function makePreview(elm, stream) {
+    elm.srcObject = stream;
+}
+
+function clearPreview(elm) {
+    elm.srcObject = null;
 }
 
 /*-----------------------------------------------------------------------------
  * Audio Control.
  *---------------------------------------------------------------------------*/
-async function getDesktopAudio() {
-    clearDesktopAudio();
+async function getAudio(callback) {
+    clearAudio();
     try {
-        let mediaStream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:{echoCancellation:false}});
-        DesktopAudio = mediaStream;
+        const audioStream = await callback();
+        return audioStream;
     } catch (e) {
         console.error('Unable to acquire screen capture: ' + e);
         return null;
     }
 }
 
-function clearDesktopAudio() {
-    console.log(DesktopAudio);
-    if (DesktopAudio !== null) {
-        DesktopAudio.getTracks().forEach(track => track.stop());
-        DesktopAudio = null;
-    }
-    return;
-}
+function clearAudio() {
+    const videoSrc = document.getElementById("video").srcObject;
+    const videoSrcClone = document.getElementById("choose-audio-preview").srcObject;
 
-async function getInputAudio() {
-    clearInputAudio();
-    try {
-        let inputAudioStream = await navigator.mediaDevices.getUserMedia({video:false, audio: true});
-        InputAudio = inputAudioStream;
-    } catch (e) {
-        console.error('Unable to acquire audio capture: ' + e);
-        return null;
+    if (videoSrc !== null) {
+        videoSrc.getTracks().forEach(track => track.stop());
     }
-}
-
-function clearInputAudio() {
-    if (InputAudio !== null) {
-        InputAudio.getTracks().forEach(track => track.stop());
-        InputAudio = null;
+    if (videoSrcClone !== null) {
+        videoSrcClone.getTracks().forEach(track => track.stop());
     }
     return;
 }

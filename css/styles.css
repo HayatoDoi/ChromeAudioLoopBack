@@ -4,9 +4,9 @@
 
 
 /* Custom default button */
-.btn-top,
-.btn-top:hover,
-.btn-top:focus {
+#btn-top,
+#btn-top:hover,
+#btn-top:focus {
   color: #333;
   text-shadow: none; /* Prevent inheritance from `body` */
 }
